@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block mainbody %}
+
+    <div class="layui-layout layui-layout-admin kit-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">xhg_TestAutomation</div>
+            <ul class="layui-nav layui-layout-right kit-nav">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img src="http://m.zhengjinfan.cn/images/0.jpg" class="layui-nav-img">  {{ user }}
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;">基本资料</a></dd>
+                        <dd><a href="javascript:;">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item"><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i>
+                    注销</a></li>
+            </ul>
+        </div>
+
+        <div class="layui-side layui-bg-black kit-side">
+            <div class="layui-side-scroll">
+                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+                <ul class="layui-nav layui-nav-tree" lay-filter="kitNavbar" kit-navbar>
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a class="" href="javascript:;"><i class="fa fa-plug" aria-hidden="true"></i><span> API自动化</span></a>
+                        <dl class="layui-nav-child">
+                            <dd>
+                                <a href="javascript:;" data-url="{% url 'project_manage' %}" data-icon="&#xe6c6;" data-title="项目管理"
+                                   kit-target data-id='1'>
+                                    <span> 项目管理</span></a>
+                            </dd>
+                            <dd>
+                                <a href="javascript:;" data-url="{% url 'territory_manage' %}" data-icon="&#xe6c6;" data-title="环境管理"
+                                   kit-target data-id='2'><i class="fa fa-user" aria-hidden="true"></i><span> 环境管理</span></a>
+                            </dd>
+                            <dd>
+                                <a href="javascript:;" data-url="{% url 'api_manage' %}" data-icon="&#xe628;" data-title="接口管理"
+                                   kit-target data-id='3'><span> 接口管理</span></a>
+                            </dd>
+                            <dd>
+                                <a href="javascript:;" data-url="" data-icon="&#xe614;" data-title="用例管理"
+                                   kit-target data-id='4'><span> 用例管理</span></a>
+                            </dd>
+                            <dd>
+                                <a href="javascript:;" data-url="" data-icon="&#xe6c6;" data-title="任务管理"
+                                   kit-target data-id='5'><span> 任务管理</span></a>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;"><i class="fa fa-plug" aria-hidden="true"></i><span> UI自动化</span></a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;" data-url="" data-name="table" kit-loader><i
+                                class="fa fa-plug" aria-hidden="true"></i><span> 性能测试</span></a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;" data-url="" data-name="form" kit-loader><i
+                                class="fa fa-plug" aria-hidden="true"></i><span> 工具集</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="layui-body" id="container">
+            <!-- 内容主体区域 -->
+            <div style="padding: 15px;">主体内容加载中,请稍等...</div>
+        </div>
+
+        <div class="layui-footer">
+            <!-- 底部固定区域 -->
+            2018 &copy;
+            <a href="">xhg_TestAutomation</a>
+
+        </div>
+    </div>
+
+    <script>
+        var message;
+        layui.config({
+            base: '/static/build/js/'
+        }).use(['app', 'message'], function () {
+            var app = layui.app,
+                $ = layui.jquery,
+                layer = layui.layer;
+            //将message设置为全局以便子页面调用
+            message = layui.message;
+            //主入口
+            app.set({
+                type: 'iframe'
+            }).init();
+        });
+    </script>
+
+{% endblock %}

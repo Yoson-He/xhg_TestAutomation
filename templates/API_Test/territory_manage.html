@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <div class="main">
+        <ul class="box-top">
+            <li><button class="layui-btn layui-btn-small layui-btn-normal">+ 创建环境</button></li>
+        </ul>
+        <ul class="box-lift">
+            <li class="li-title"><span>环境变量</span></li>
+        </ul>
+        <div class="box-right">
+            <iframe id="territory_iframe" frameborder="0" scrolling="no" marginwidth="0" marginheight="0"  width="100%" height="100%" src="{% url 'territory_form' %}"></iframe>
+        </div>
+    </div>
+    <script>
+        layui.use(['form','jquery','element','layer'],function(){
+            var form = layui.form,element = layui.element,layer =layui.layer;
+
+            //加载环境列表
+            $.ajax({
+                type:"GET",
+                url:"{% url 'territory_query' %}",
+                success:function(res){
+                    var txt = '';
+                    $.each(res.data,function(){
+                        txt = txt + "<li class=\"territory-item\"><a id=\""+this.id+"\" class=\"territory_name\" href=\"#\">"+this.territory_name +"</a><a hidden class=\"territory-del\" href=\"#\"><i class=\"layui-icon\">&#xe640;</i></a></li>"
+                    });
+                    $(".box-lift").append(txt);
+                },
+                error: function (jqXHR) {
+                    layer.alert(jqXHR.responseText);
+                }
+            });
+
+
+            //鼠标悬浮效果
+
+            $(".box-lift").on('mouseover mouseleave', 'li.territory-item', function (event) {
+                if (event.type == 'mouseover') {
+                    $(this).find('.territory-del').show();
+                } else if (event.type == "mouseleave") {
+                    $(this).find('.territory-del').hide();
+                }
+            });
+
+
+            //选中效果
+            $(".box-lift").on('click', 'li.territory-item', function (event) {
+                $(".hover").removeClass("hover");
+                $(this).addClass("hover");
+
+            });
+
+
+            //新增页面
+            $('.box-top>li').click(function(){
+                $("#territory_iframe").contents().find("form")[0].reset();
+                $("#territory_iframe").contents().find("#territory_form").show();
+                $("#territory_iframe").contents().find("#territory_cancel").show();
+                $("#territory_iframe").contents().find("#territory_continue").show();
+
+            });
+
+            //修改页面
+            $('.box-lift').on('click','li>a.territory_name',function(){
+                var othis = $("#territory_iframe").contents();
+                othis.find("#territory_form").show();
+                othis.find("#territory_cancel").hide();
+                othis.find("#territory_continue").hide();
+                $.ajax({
+                    type:"GET",
+                    url:"{% url 'territory_query' %}",
+                    data:{'id':$(this).attr('id')},
+                    success:function(res){
+                        $.each(res.data,function(){
+                            othis.find("input[name='id']").val(this.id);
+                            othis.find("input[name='territory_name']").val(this.territory_name);
+                            othis.find("input[name='host']").val(this.host);
+                            othis.find("input[name='password']").val(this.password);
+                            othis.find("input[name='user']").val(this.user);
+                            othis.find("input[name='login_url']").val(this.login_url);
+                            othis.find("textarea[name='description']").val(this.description);
+                            othis.find("select[name='project_id']").next().find("dd[lay-value=" + this.project_id + "]").click();
+                        });
+                    },
+                    error: function (jqXHR) {
+                        layer.alert(jqXHR.responseText);
+                    }
+                });
+            });
+        });
+
+        //删除环境
+        $(".box-lift").on('click','li>a.territory-del',function(){
+            var this_li = $(this).parent();
+            var id = $(this).prev().attr('id');
+            console.log($(this).parent(".territory-item"));
+            $.ajax({
+                type:"POST",
+                url:"{% url 'territory_del' %}",
+                data:{"id":id},
+                success:function(res){
+                    if (res.rowcount==1){
+                        this_li.remove();
+                        layer.msg("删除成功！");
+                    }
+                },
+                error: function (jqXHR) {
+                    parent.layer.alert(jqXHR.responseText);
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,65 @@
+.api-box{
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items:stretch;
+}
+.api-box-left{
+    width: 250px;
+    height: 100%;
+}
+.api-box-right{
+    width: 100%;
+    height: 100%;
+}
+.api-box-top{
+    height: 50px;
+    line-height: 50px;
+    border-bottom: 1px solid #e5e5e5;
+    padding-left: 10px;
+}
+
+.api-box-left-bottom{
+    width: 100%;
+    height: calc(100% - 51px);
+    border-right: 1px solid #e5e5e5;
+}
+
+.api-box-left-bottom li{
+    width: 100%;
+    line-height: 40px;
+    padding-left: 10px;
+
+}
+.api-box-left-bottom a{
+    display:inline-block;
+    height: 40px!important;
+}
+
+.form-div{
+    padding-top: 10px;
+}
+.mouse-show{
+    display:inline-block;
+}
+.api-form-item{
+    margin-bottom: 10px;
+}
+.api-form-inline{
+    margin-right: 0!important;
+    height: 30px;
+}
+
+.api-headers-table,.api-uri-table,.api-query-table,.api-body-table,.api-response-table{
+    width: 100%;
+    border: 1px solid #e5e5e5;
+}
+
+.api-headers-table,.api-uri-table,.api-query-table,.api-body-table,.api-response-table>thead{
+    background-color: #e5e5e5;
+    height: 40px;
+    line-height: 40px;
+}
+.api-headers-table,.api-uri-table,.api-query-table,.api-body-table,.api-response-table>thead>tr>td{
+    padding-left: 10px;
+}

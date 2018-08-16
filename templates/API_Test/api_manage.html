@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <div class="api-box">
+        <div class="api-box-left">
+            <div class="api-box-top">
+                <button class="layui-btn layui-btn-small layui-btn-normal" id="group-add">+ 新建分组</button>
+            </div>
+            <div class="api-box-left-bottom">
+                <ul>
+                    <li><a href="#" class="api-box-li-title">所有接口</a></li>
+                    <li><a href="#" class="api-box-li-title">未分组</a></li>
+                </ul>
+                <ul id="group-tree"></ul>
+            </div>
+        </div>
+        <div class="api-box-right">
+            <div class="api-box-top">
+                <a class="layui-btn layui-btn-small layui-btn-normal" href="{% url 'api_details' %}">+ 添加接口</a>
+                <button class="layui-btn layui-btn-small layui-btn-primary">导入接口</button>
+            </div>
+            <div class="api-box-right-bottom">
+
+            </div>
+        </div>
+
+    </div>
+    <script>
+        layui.use(['tree','layer','form','element'], function(){
+            var layer=layui.layer,form=layui.form,element=layui.element;
+            var nodes = new Array();//存储左侧导航树节点
+            var node_name,node_id;
+
+            //加载左侧分组树
+            $.ajax({
+                type:"GET",
+                url:"{% url 'nodes_query' %}",
+                success:function(res){
+                    nodes = res.data;
+                    layui.tree({
+                        elem: '#group-tree' //传入元素选择器
+                        , nodes: nodes
+                        , click: function (node) {
+                            node_name = node.name;
+                            node_id = node.id;
+                            $(".hover").removeClass("hover");
+                            $.each($("#group-tree>li>a"), function () {
+                                if ($(this).text() == node_name) {
+                                    $(this).addClass("hover");
+                                }
+
+                            });
+                            $.each($(".layui-show>li>a"),function(){
+                                if ($(this).text() == node_name){
+                                    $(this).addClass("hover");
+                                }
+                            });
+                        }
+                    });
+
+                    //删除layui-tree 自带的样式
+                    $("i.layui-tree-branch").remove();
+                    $("i.layui-tree-leaf").remove();
+                },
+                error: function (jqXHR) {
+                    layer.alert(jqXHR.responseText);
+                }
+            });
+
+            //树节点选中效果
+            $(".api-box-left-bottom").on('click', 'li>a', function () {
+                $(".hover").removeClass("hover");
+                $(this).addClass("hover");
+
+            });
+
+            //鼠标悬浮效果
+            $("#group-tree").on('mouseenter mouseleave', 'li>ul.layui-show>li', function (event) {
+                if (event.type == 'mouseenter') {
+                    $(this).append("  <a class=\"group-update\" href=\"#\"><i class=\"layui-icon\"> &#xe642;</i></a>  <a class=\"group-del\" href=\"#\"><i class=\"layui-icon\"> &#xe640;</i></a>");
+                } else if (event.type == "mouseleave") {
+                    $(this).children(".group-del,.group-update").remove();
+                }
+            });
+
+            //新增分组
+            $("#group-add").click(function(){
+                var title = $(this).text();
+                layer.open({
+                    type: 2
+                    ,offset: ['100px', '200px']
+                    , title: title
+                    , area: ['450px', '350px']
+                    , content: "{% url 'group_form' %}"
+                    , btn: ['保存', '取消']
+                    , btnAlign: 'r' //按钮右对齐
+                    , shade: 0.5 //遮罩透明度
+                    ,yes: function (index) {
+                        $.ajax({
+                            type:'POST',
+                            url:"{% url 'group_add' %}",
+                            data:layer.getChildFrame('form').serialize(),
+                            success: function (res) {
+                                if (res.rowcount == 1) {
+                                    layer.close(index);
+                                    parent.layer.msg("新增成功！");
+                                    var txt ='';
+                                    txt =txt + "<li><a href=\"javascript:;\"><cite>"+layer.getChildFrame('form').find("input[name=group_name]").val()+"</cite></a></li>";
+                                    $.each($("#group-tree>li"),function(){
+                                        if ($(this).children("a").text() == layer.getChildFrame('form').find(".layui-this").text()){
+                                            $(this).children("ul.layui-show").append(txt);
+                                        }
+                                    });
+                                }
+                                else if (res == 'group_name') {
+                                    layer.msg("请输入名称",{offset: ['200px', '400px'],time: 1000});
+                                }
+                            },
+                            error: function (jqXHR) {
+                                parent.layer.alert(jqXHR.responseText);
+                            }
+                        });
+                    }
+                });
+            });
+
+            //修改分组
+            $('#group-tree').on('click','.group-update',function(){
+                var this_a = $(this).parent().find("a:first");
+                var group_name = this_a.text();
+                layer.open({
+                    type: 2
+                    ,offset: ['100px', '200px']
+                    , title: "修改分组"
+                    , area: ['450px', '350px']
+                    , content: "{% url 'group_form' %}"
+                    , btn: ['保存', '取消']
+                    , btnAlign: 'r' //按钮右对齐
+                    , shade: 0.5 //遮罩透明度
+                    ,success:function(layero, index){
+                        $.ajax({
+                            type:'GET',
+                            url:"{% url 'group_query' %}",
+                            data:{'group_name':group_name},
+                            success:function(res){
+                                var othis = layer.getChildFrame('form', index);
+                                $(document).ready(function(){
+                                    $.each(res.data,function() {
+                                        othis.find("input[name='id']").val(this.id);
+                                        othis.find("input[name='group_name']").val(this.group_name);
+                                        othis.find("select[name='project_id']").next().find("dd[lay-value='" + this.project_id + "']").click();
+                                    });
+                                });
+                            },
+                            error: function (jqXHR) {
+                                parent.layer.alert(jqXHR.responseText);
+                            }
+                        });
+                    }
+                    ,yes: function (index,layero) {
+                        var new_name = layer.getChildFrame("input[name='group_name']").val();
+                        $.ajax({
+                            type:'POST',
+                            url:"{% url 'group_update' %}",
+                            data:layer.getChildFrame('form').serialize(),
+                            success: function (res) {
+                                if (res.rowcount == 1) {
+                                    this_a.children("cite").text(new_name);
+                                    layer.close(index);
+                                    parent.layer.msg("修改成功！");
+                                }
+                                else if (res == 'group_name') {
+                                    layer.msg("请输入名称",{offset: ['200px', '400px'],time: 1000});
+                                }
+                            },
+                            error: function (jqXHR) {
+                                parent.layer.alert(jqXHR.responseText);
+                            }
+                        });
+                    }
+                });
+            });
+
+            //删除分组
+            $("#group-tree").on("click",'.group-del', function () {
+                var group_name = $(this).parent().find("a:first").text();
+                var this_li =  $(this).parent();
+                $.ajax({
+                    type:"POST",
+                    url:"{% url 'group_del' %}",
+                    data:{"group_name":group_name},
+                    success:function(res){
+                        if (res.rowcount==1){
+                            this_li.remove();
+                            layer.msg("删除成功！");
+                        }
+                    },
+                    error: function (jqXHR) {
+                        parent.layer.alert(jqXHR.responseText);
+                    }
+                });
+            });
+
+        });
+    </script>
+{% endblock %}

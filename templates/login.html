@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <div class="signin">
+        <div class="box">
+            <form class="signin-form layui-form" action="" method="post">
+                {% csrf_token %}
+                <div class="layui-form-item login-title">
+                    <sapn>xhg_TestAutomation</sapn>
+                </div>
+                <div style="color: #FD482C "><span>{{ error }}</span></div>
+                <div class="layui-form-item">
+                    <input type="text" name="Username" placeholder="Username" autocomplete="off" required
+                           lay-verify="required" class="layui-input login-input">
+                </div>
+                <div class="layui-form-item">
+                    <input type="password" name="Password" placeholder="Password" autocomplete="off" required
+                           lay-verify="required" class="layui-input login-input">
+                </div>
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-normal" lay-submit lay-filter="login" style="width: 340px;font-size: larger">
+                        Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+

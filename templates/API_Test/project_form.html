@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <div id="project_form">
+        <form class="layui-form layui-form-pane" action="">
+            <div class="layui-form-item project-form-item layui-hide">
+                <label class="layui-form-label">id</label>
+                <div class="layui-input-block">
+                    <input type="text" name="id" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item project-form-item">
+                <label class="layui-form-label">项目名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="project_name" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item project-form-item">
+                <label class="layui-form-label">版本号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="version"  placeholder="" autocomplete="off" class="layui-input">
+                </div>
+                <label class="layui-form-label">项目类型</label>
+                <div class="layui-input-inline">
+                    <select name="project_type" lay-verify="">
+                        <option value="1">Web</option>
+                        <option value="2">APP</option>
+                        <option value="3">PC</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item project-form-item layui-form-text">
+                <label class="layui-form-label">项目说明</label>
+                <div class="layui-input-block">
+                    <textarea name="description"  placeholder="项目说明[选填]" class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        layui.use(['form'],function(){
+            var form=layui.form;
+        });
+    </script>
+{% endblock %}

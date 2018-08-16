@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <div class="form-div">
+        <form class="layui-form layui-form-pane" action="">
+            <div class="layui-form-item project-form-item layui-hide">
+                <label class="layui-form-label">id</label>
+                <div class="layui-input-block">
+                    <input type="text" name="id" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item project-form-item">
+                <label class="layui-form-label">父分组</label>
+                <div class="layui-input-block">
+                    <select name="project_id" lay-verify="">
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item project-form-item">
+                <label class="layui-form-label">分组名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="group_name" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        layui.use(['form'],function(){
+            var form = layui.form;
+            $.ajax({
+                type:'GET',
+                url:"{% url 'project_query' %}",
+                success:function(res){
+                    var txt='';
+                    $.each(res.data,function(){
+                        txt = txt+"<option value=\""+this.id+"\">"+this.project_name+"</option>";
+                    });
+                    $("select[name=project_id]").append(txt);
+                    form.render();
+                },
+                error: function (jqXHR) {
+                    parent.layer.alert(jqXHR.responseText);
+                }
+            });
+
+        });
+    </script>
+{% endblock %}

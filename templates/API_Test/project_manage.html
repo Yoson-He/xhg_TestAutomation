@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <div class="project-main-div"></div>
+
+    <script>
+        layui.use(['layer','jquery','element','form'],function(){
+            var layer = layui.layer,$ = layui.jquery,element=layui.element,form=layui.form;
+
+            /*---加载项目列表---*/
+            $.ajax({
+                type:'GET',
+                url:"{% url 'project_query' %}",
+                success:function(res){
+                    var txt='';
+                    $.each(res.data,function(){
+                        txt = txt+"<button class=\"layui-btn layui-btn-primary project-btn\"><div class=\"project-del\">x</div><div class=\"project_name\">"+this.project_name+"</div></button>";
+                    });
+                    txt = txt+"<button id=\"project_add\" class=\"layui-btn layui-btn-primary project-btn\"><div class=\"project_name\"><span style=\"font-size:xx-large;\">+</span><br>新增项目</div></button>";
+                    $(".project-main-div").prepend(txt);
+                },
+                error: function (jqXHR) {
+                    parent.layer.alert(jqXHR.responseText);
+                }
+            });
+
+            $(".project-main-div").on("click","button>div.project_name", function () {
+                var title = '项目详情',project_name=$(this).text();
+                if(project_name === '+新增项目'){
+                    title = '新增项目';
+                }
+                layer.open({
+                    type: 2
+                    ,offset: ['100px', '200px']
+                    , title: title
+                    , area: ['660px', '400px']
+                    , content: "{% url 'project_form' %}"
+                    , btn: ['保存', '取消']
+                    , btnAlign: 'r' //按钮右对齐
+                    , shade: 0.5 //遮罩透明度
+
+                    /*---加载项目详情---*/
+                    ,success: function(layero, index){
+                        if (title === '项目详情'){
+                            $.ajax({
+                                type:'GET',
+                                url:"{% url 'project_query' %}",
+                                data:{'project_name':project_name},
+                                success:function(res){
+                                    var othis = layer.getChildFrame('form', index);
+                                   $.each(res.data,function() {
+                                       othis.find("input[name='id']").val(this.id);
+                                       othis.find("input[name='project_name']").val(this.project_name);
+                                        othis.find("input[name='version']").val(this.version);
+                                        othis.find("select[name='project_type']").next().find("dd[lay-value=\"" + this.project_type + "\"]").click();
+                                        othis.find("textarea[name='description']").val(this.description);
+                                    });
+                                },
+                                error: function (jqXHR) {
+                                    parent.layer.alert(jqXHR.responseText);
+                                }
+                            });
+                        }
+                        //form.render('select');
+                    }
+
+                    /*---update项目---*/
+                    ,yes: function (index) {
+                        if(title === '项目详情'){
+                            $.ajax({
+                                type:'POST',
+                                url:"{% url 'project_update' %}",
+                                data:layer.getChildFrame('form').serialize(),
+                                success: function (res) {
+                                    if (res.rowcount == 1) {
+                                        layer.close(index);
+                                        parent.layer.msg("修改成功！");
+                                    }
+                                    else if (res == 'project_name') {
+                                        layer.msg("请输入项目名称",{offset: ['200px', '400px'],time: 1000});
+                                    }
+                                },
+                                error: function (jqXHR) {
+                                    parent.layer.alert(jqXHR.responseText);
+                                }
+                            });
+                        }
+
+                        /*---新增项目---*/
+                        if(title === '新增项目'){
+                            var project_name = layer.getChildFrame('form').find("input[name='project_name']").val();
+                            $.ajax({
+                                type:'POST',
+                                url:"{% url 'project_add' %}",
+                                data:layer.getChildFrame('form').serialize(),
+                                success: function (res) {
+                                if (res.rowcount == 1) {
+                                    layer.close(index);
+                                    var txt ='';
+                                    txt =txt + "<button class=\"layui-btn layui-btn-primary project-btn\"><div class=\"project-del\">x</div><div class=\"project_name\">" + project_name +"</div></button>";
+                                    $("#project_add").before(txt);
+                                    parent.layer.msg("新增成功！");
+                                }
+                                else if (res == 'project_name') {
+                                    layer.msg("请输入项目名称",{offset: ['200px', '400px'],time: 1000});
+                                }
+                                },
+                                error: function (jqXHR) {
+                                    parent.layer.alert(jqXHR.responseText);
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+
+            /*---删除项目---*/
+            $(".project-main-div").on("click","button>div.project-del", function () {
+                var project_name = $(this).next().text(), this_btn = $(this).parent();
+                $.ajax({
+                    type:"POST",
+                    url:"{% url 'project_del' %}",
+                    data:{"project_name":project_name},
+                    success:function(res){
+                        if (res.rowcount==1){
+                            this_btn.remove();
+                            layer.msg("删除成功！");
+                        }
+                    },
+                    error: function (jqXHR) {
+                        parent.layer.alert(jqXHR.responseText);
+                    }
+                });
+            });
+            //element.init();
+        });
+    </script>
+{% endblock %}
