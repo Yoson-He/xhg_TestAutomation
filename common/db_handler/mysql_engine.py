@@ -19,7 +19,7 @@ class MySQLEngine(object):
         MySQL 数据库ORM
         :param
         """
-        self.host = "10.10.12.61"
+        self.host = "10.10.13.175"
         self.user = "root"
         self.password = "123456"
         self.charset = "utf8"
@@ -59,10 +59,10 @@ class MySQLEngine(object):
                     self.cursor.execute(sql)
                     if execute_type == 'insert':
                         insert_id = self.__conn.insert_id()
-                        #print('新插入的id：'+str(insert_id))
+                        print('新插入的id：'+str(insert_id))
                         result['insert_id'] = insert_id
                     self.__conn.commit()
-                    #print("受影响的行：%d" % (self.cursor.rowcount))
+                    print("受影响的行：%d" % (self.cursor.rowcount))
                     result['rowcount'] = self.cursor.rowcount
                     return result
                 except pymysql.Error:

@@ -13,21 +13,14 @@ from common.db_handler.mysql_engine import MySQLEngine
 
 
 def territory_manage(request):
-    if request.session.session_key:
-        return render(request, 'API_Test/territory_manage.html')
-    else:
-        return HttpResponseRedirect('/')
+    return render(request, 'API_Test/territory_manage.html')
 
 
 def territory_form(request):
-    if request.session.session_key:
-        return render(request, 'API_Test/territory_form.html')
-    else:
-        return HttpResponseRedirect('/')
+    return render(request, 'API_Test/territory_form.html')
 
 
 def territory_add(request):
-    if request.session.session_key:
         if request.method == 'POST':
             sql = "INSERT INTO territory("
             sql_values = ') VALUES( '
@@ -36,34 +29,28 @@ def territory_add(request):
                 if value != '':
                     sql += "%s," % key
                     sql_values += "'%s'," % value
-                elif key in ['territory_name', 'project_id', 'host']:
+                elif key in ['territory_name', 'host']:
                     return HttpResponse(key)
             sql = sql[:-1] + sql_values[:-1] + ")"  # 先去掉最后的逗号，再拼接
             res = MySQLEngine().my_execute('insert', sql)
             return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
 
 
 def territory_update(request):
-    if request.session.session_key:
         if request.method == 'POST':
             sql = "UPDATE territory SET "
             for key in request.POST:
                 value = str_clean(request.POST.get(key))
-                if value != '':
-                    sql += "%s='%s'," % (key, value)
-                elif key in ['territory_name', 'project_id', 'host']:
+                if key in ['territory_name', 'host'] and value == '':
                     return HttpResponse(key)
+                else:
+                    sql += "%s='%s'," % (key, value)
             sql = sql[:-1] + " WHERE id=%s" % request.POST.get('id')  # 先去掉最后的逗号，再拼接where
             res = MySQLEngine().my_execute('update', sql)
             return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
 
 
 def territory_query(request):
-    if request.session.session_key:
         if request.method == 'GET':
             id = request.GET.get('id')
             sql = "SELECT * FROM territory"
@@ -73,12 +60,9 @@ def territory_query(request):
             data.reverse()
             res = {"data": data}
             return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
 
 
 def territory_del(request):
-    if request.session.session_key:
         if request.method == 'POST':
             sql = "DELETE FROM territory WHERE "
             for key in request.POST:
@@ -87,5 +71,4 @@ def territory_del(request):
                     sql += "%s = '%s'" % (key, value)
             res = MySQLEngine().my_execute('delete', sql)
             return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
+

@@ -7,14 +7,15 @@
             <ul class="layui-nav layui-layout-right kit-nav">
                 <li class="layui-nav-item">
                     <a href="javascript:;">
-                        <img src="http://m.zhengjinfan.cn/images/0.jpg" class="layui-nav-img">  {{ user }}
+                        <img src="http://m.zhengjinfan.cn/images/0.jpg" class="layui-nav-img"> {{ user }}
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a href="javascript:;">基本资料</a></dd>
                         <dd><a href="javascript:;">安全设置</a></dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item"><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i>
+                <li class="layui-nav-item"><a href="{% url 'logout' %}"><i class="fa fa-sign-out"
+                                                                           aria-hidden="true"></i>
                     注销</a></li>
             </ul>
         </div>
@@ -24,28 +25,41 @@
                 <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
                 <ul class="layui-nav layui-nav-tree" lay-filter="kitNavbar" kit-navbar>
                     <li class="layui-nav-item layui-nav-itemed">
-                        <a class="" href="javascript:;"><i class="fa fa-plug" aria-hidden="true"></i><span> API自动化</span></a>
+                        <a class="" href="javascript:;"><i class="fa fa-plug"
+                                                           aria-hidden="true"></i><span> API自动化</span></a>
                         <dl class="layui-nav-child">
                             <dd>
-                                <a href="javascript:;" data-url="{% url 'project_manage' %}" data-icon="&#xe6c6;" data-title="项目管理"
+                                <a href="javascript:;" data-url="{% url 'project_manage' %}" data-icon="&#xe6c6;"
+                                   data-title="项目管理"
                                    kit-target data-id='1'>
                                     <span> 项目管理</span></a>
                             </dd>
                             <dd>
-                                <a href="javascript:;" data-url="{% url 'territory_manage' %}" data-icon="&#xe6c6;" data-title="环境管理"
-                                   kit-target data-id='2'><i class="fa fa-user" aria-hidden="true"></i><span> 环境管理</span></a>
+                                <a href="javascript:;" data-url="{% url 'territory_manage' %}" data-icon="&#xe6c6;"
+                                   data-title="环境管理"
+                                   kit-target data-id='2'><i class="fa fa-user"
+                                                             aria-hidden="true"></i><span> 环境管理</span></a>
                             </dd>
-                            <dd>
+                            {% comment %}<dd>
                                 <a href="javascript:;" data-url="{% url 'api_manage' %}" data-icon="&#xe628;" data-title="接口管理"
                                    kit-target data-id='3'><span> 接口管理</span></a>
+                            </dd>{% endcomment %}
+                            <dd>
+                                <a href="javascript:;" data-url="{% url 'api_doc' %}"
+                                   data-icon="&#xe6c6;" data-title="接口文档"
+                                   kit-target data-id='3'><span>接口文档</span></a>
+                            </dd>
+                            <dd>
+                                <a href="javascript:;" data-url="" data-icon="&#xe614;" data-title="接口调试"
+                                   kit-target data-id='4'><span> 接口调试</span></a>
                             </dd>
                             <dd>
                                 <a href="javascript:;" data-url="" data-icon="&#xe614;" data-title="用例管理"
-                                   kit-target data-id='4'><span> 用例管理</span></a>
+                                   kit-target data-id='5'><span> 用例管理</span></a>
                             </dd>
                             <dd>
-                                <a href="javascript:;" data-url="" data-icon="&#xe6c6;" data-title="任务管理"
-                                   kit-target data-id='5'><span> 任务管理</span></a>
+                                <a href="javascript:;" data-url="http://10.10.13.175:8080" data-icon="&#xe6c6;" data-title="Jenkins"
+                                   kit-target data-id='6'><span> Jenkins</span></a>
                             </dd>
                         </dl>
                     </li>

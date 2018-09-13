@@ -5,12 +5,20 @@
 # @Software: PyCharm
 import re
 
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render
 from common.common import str_clean
 from django.views.decorators.csrf import csrf_exempt
 
 from common.db_handler.mysql_engine import MySQLEngine
+
+
+def api_doc(request):
+    if request.session.session_key:
+        return render(request, 'API_Test/api_doc.html')
+    else:
+        return HttpResponseRedirect('/')
 
 
 def api_manage(request):
@@ -64,7 +72,7 @@ def group_add(request):
                 if value != '':
                     sql += "%s," % key
                     sql_values += "'%s'," % value
-                elif key in ['group_name']:
+                elif key in ['group_name', 'project_id']:
                     return HttpResponse(key)
             sql = sql[:-1] + sql_values[:-1] + ")"  # 先去掉最后的逗号，再拼接
             res = MySQLEngine().my_execute('insert', sql)
@@ -94,10 +102,10 @@ def group_update(request):
             sql = "UPDATE api_group SET "
             for key in request.POST:
                 value = str_clean(request.POST.get(key))
-                if value != '':
-                    sql += "%s='%s'," % (key, value)
-                elif key in ['group_name']:
+                if key in ['group_name'] and value == '':
                     return HttpResponse(key)
+                else:
+                    sql += "%s='%s'," % (key, value)
             sql = sql[:-1] + " WHERE id=%s" % request.POST.get('id')  # 先去掉最后的逗号，再拼接where
             res = MySQLEngine().my_execute('update', sql)
             return JsonResponse(res)
@@ -119,98 +127,27 @@ def group_del(request):
         return HttpResponseRedirect('/')
 
 
-def api_details(request):
+def api_form(request):
     if request.session.session_key:
-        return render(request, 'API_Test/api_details.html')
-    else:
-        return HttpResponseRedirect('/')
-
-
-def api_document(request):
-    if request.session.session_key:
-        return render(request, 'API_Test/api_document.html')
+        return render(request, 'API_Test/api_form.html')
     else:
         return HttpResponseRedirect('/')
 
 
 def api_add(request):
     if request.session.session_key:
-        if request.method == 'POST':
-            sql1 = "INSERT INTO api("
-            sql2 = "INSERT INTO api_params(api_id,param_type,param_key,description,required,data_type,sample)VALUES"
-            sql1_values = ') VALUES( '
-            sql2_values = []
-            temp = {"param_type": '', "key": '', "description": '', "required": '', "data_type": '', "sample": ''}
-            for key in request.POST:
-                if key == 'project_id':
-                    continue
-                value = str_clean(request.POST.get(key))
-
-                if re.match('header_key', key) is not None:
-                    temp["param_type"] = 1
-                    temp["key"] = value
-                    continue
-                if re.match("uri_key", key) is not None:
-                    temp["param_type"] = 2
-                    temp["key"] = value
-                    continue
-                if re.match("query_key", key) is not None:
-                    temp["param_type"] = 3
-                    temp["key"] = value
-                    continue
-                if re.match("body_key", key) is not None:
-                    temp["param_type"] = 4
-                    temp["key"] = value
-                    continue
-                if re.match("response_key", key) is not None:
-                    temp["param_type"] = 5
-                    temp["key"] = value
-                    continue
-                if (re.match("uri_description", key) is not None) or (
-                        re.match("query_description", key) is not None) or (
-                        re.match("body_description", key) is not None) or (
-                        re.match("response_description", key) is not None):
-                    temp["description"] = value
-                    continue
-                if (re.match("query_required", key) is not None) or (
-                        re.match("body_required", key) is not None) or (
-                        re.match("response_required", key) is not None):
-                    temp["required"] = value
-                    continue
-                if (re.match("body_type", key) is not None) or (
-                        re.match("response_type", key) is not None):
-                    temp["data_type"] = value
-                    continue
-                if (re.match("header_value", key) is not None) or (
-                        re.match("uri_sample", key) is not None) or (
-                        re.match("response_sample", key) is not None) or (
-                        re.match("query_sample", key) is not None) or (
-                        re.match("body_sample", key) is not None):
-                    temp["sample"] = value
-                    sql2_values.append(temp)
-                    temp = {"param_type": '', "key": '', "description": '', "required": '', "data_type": '',
-                            "sample": ''}
-
-                elif value != '':
-                    sql1 += "%s," % key
-                    sql1_values += "'%s'," % value
-                elif key in ['api_name', 'protocol', 'path', 'method']:
-                    return HttpResponse(key)
-            sql1 = sql1[:-1] + sql1_values[:-1] + ")"  # 先去掉最后的逗号，再拼接
-            res = MySQLEngine().my_execute('insert', sql1)
-
-            api_id = res["insert_id"]
-            for each in sql2_values:
-                if each["key"] == '':
-                    sql2_values.remove(each)
-                else:
-                    sql2 += "(" + str(api_id) + "," + str(each["param_type"]) + ",'" + str(each["key"]) + "','" + str(each[
-                        "description"]) + "','" + str(each["required"]) + "','" + str(each["data_type"]) + "','" + str(each[
-                                "sample"]) + "'),"
-            if sql2[-1] != "S":
-                sql2 = sql2[:-1]
-                MySQLEngine().my_execute('insert', sql2)
-            return JsonResponse(res)
+        sql = "INSERT INTO api("
+        sql_values = ') VALUES( '
+        for key in request.POST:
+            value = str_clean(request.POST.get(key))
+            if value != '':
+                sql += "%s," % key
+                sql_values += "'%s'," % value
+            elif key in ['api_name', 'protocol', 'method', 'path']:
+                return HttpResponse(key)
+        sql = sql[:-1] + sql_values[:-1] + ")"  # 先去掉最后的逗号，再拼接
+        res = MySQLEngine().my_execute('insert', sql)
+        return JsonResponse(res)
     else:
         return HttpResponseRedirect('/')
 
@@ -221,17 +158,35 @@ def api_query(request):
             sql = "SELECT * FROM api"
             for key in request.GET:
                 value = str_clean(request.GET.get(key))
-                if value is not None and value != '':
+                if key =='page':
+                    page = value
+                elif key =='limit':
+                    limit = value
+                elif value is not None and value != '':
                     sql += " WHERE %s = '%s'" % (key, value)
-                data = MySQLEngine().my_execute("query", sql)
-                data.reverse()
-                res = {"data": data}
-            return JsonResponse(res)
+            sql += " ORDER BY id DESC LIMIT " + str((int(page) - 1) * int(limit)) + "," + str(limit)
+            data = MySQLEngine().my_execute("query", sql)
+            count = MySQLEngine().my_execute("query",  "SELECT COUNT(*) FROM api")
+            return JsonResponse({'code': 0, 'msg': 'ok', 'count': count[0]["COUNT(*)"], 'data': data})
+        else:
+            return HttpResponseRedirect('/')
     else:
         return HttpResponseRedirect('/')
 
 
-
+def api_del(request):
+    if request.session.session_key:
+        if request.method == 'POST':
+            sql = "DELETE FROM api WHERE "
+            for key in request.POST:
+                value = str_clean(request.POST.get(key))
+                if value != '':
+                    sql += "%s = '%s'" % (key, value)
+            res = MySQLEngine().my_execute('delete', sql)
+            print(res)
+            return JsonResponse(res)
+    else:
+        return HttpResponseRedirect('/')
 '''
 def api_update(request):
     if request.session.session_key:
@@ -253,16 +208,5 @@ def api_update(request):
 
 
 
-def api_del(request):
-    if request.session.session_key:
-        if request.method == 'POST':
-            sql = "DELETE FROM api WHERE "
-            for key in request.POST:
-                value = str_clean(request.POST.get(key))
-                if value != '':
-                    sql += "%s = '%s'" % (key, value)
-            res = MySQLEngine().my_execute('delete', sql)
-            return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
+
 '''

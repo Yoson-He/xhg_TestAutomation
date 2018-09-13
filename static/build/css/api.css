@@ -5,7 +5,7 @@
     align-items:stretch;
 }
 .api-box-left{
-    width: 250px;
+    width: 300px;
     height: 100%;
 }
 .api-box-right{
@@ -21,8 +21,9 @@
 
 .api-box-left-bottom{
     width: 100%;
-    height: calc(100% - 51px);
+    height: calc(100% - 52px);
     border-right: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .api-box-left-bottom li{
@@ -35,7 +36,10 @@
     display:inline-block;
     height: 40px!important;
 }
-
+.layui-table-view{
+    margin-top: 0px!important;
+    margin-bottom:0px!important;
+}
 .form-div{
     padding-top: 10px;
 }

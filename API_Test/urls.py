@@ -26,12 +26,12 @@ urlpatterns = [
 
     # ---接口---- #
     path('api_manage/', views_api.api_manage, name='api_manage'),
-    path('api_details/', views_api.api_details, name='api_details'),
-    path('api_document/', views_api.api_document, name='api_document'),
+    path('api_doc/', views_api.api_doc, name='api_doc'),
+    path('api_form/', views_api.api_form, name='api_form'),
     path('api_add/', views_api.api_add, name='api_add'),
     #path('api_update/', views_api.api_update, name='api_update'),
-    #path('api_query/', views_api.api_query, name='api_query'),
-    #path('api_del/', views_api.api_del, name='api_del'),
+    path('api_query/', views_api.api_query, name='api_query'),
+    path('api_del/', views_api.api_del, name='api_del'),
     path('group_form/', views_api.group_form, name='group_form'),
     path('nodes_query/', views_api.nodes_query, name='nodes_query'),
     path('group_add/', views_api.group_add, name='group_add'),

@@ -15,26 +15,29 @@
         </div>
         <div class="api-box-right">
             <div class="api-box-top">
-                <a class="layui-btn layui-btn-small layui-btn-normal" href="{% url 'api_details' %}">+ 添加接口</a>
+                <button class="layui-btn layui-btn-small layui-btn-normal" id="api-add">+ 添加接口</button>
                 <button class="layui-btn layui-btn-small layui-btn-primary">导入接口</button>
             </div>
             <div class="api-box-right-bottom">
-
+                <table class="layui-hide" id="api_table" lay-filter="api_list"></table>
             </div>
         </div>
-
     </div>
+    <script type="text/html" id="operation_bar">
+        <a class="layui-btn layui-btn-mini" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-mini" lay-event="delete">删除</a>
+    </script>
     <script>
-        layui.use(['tree','layer','form','element'], function(){
-            var layer=layui.layer,form=layui.form,element=layui.element;
+        layui.use(['tree', 'layer', 'form', 'element', 'table'], function () {
+            var layer = layui.layer, form = layui.form, element = layui.element, table = layui.table;
             var nodes = new Array();//存储左侧导航树节点
-            var node_name,node_id;
+            var node_name, node_id;
 
             //加载左侧分组树
             $.ajax({
-                type:"GET",
-                url:"{% url 'nodes_query' %}",
-                success:function(res){
+                type: "GET",
+                url: "{% url 'nodes_query' %}",
+                success: function (res) {
                     nodes = res.data;
                     layui.tree({
                         elem: '#group-tree' //传入元素选择器
@@ -49,8 +52,8 @@
                                 }
 
                             });
-                            $.each($(".layui-show>li>a"),function(){
-                                if ($(this).text() == node_name){
+                            $.each($(".layui-show>li>a"), function () {
+                                if ($(this).text() == node_name) {
                                     $(this).addClass("hover");
                                 }
                             });
@@ -83,36 +86,39 @@
             });
 
             //新增分组
-            $("#group-add").click(function(){
+            $("#group-add").click(function () {
                 var title = $(this).text();
                 layer.open({
                     type: 2
-                    ,offset: ['100px', '200px']
+                    , offset: ['100px', '200px']
                     , title: title
                     , area: ['450px', '350px']
                     , content: "{% url 'group_form' %}"
                     , btn: ['保存', '取消']
                     , btnAlign: 'r' //按钮右对齐
                     , shade: 0.5 //遮罩透明度
-                    ,yes: function (index) {
+                    , yes: function (index) {
                         $.ajax({
-                            type:'POST',
-                            url:"{% url 'group_add' %}",
-                            data:layer.getChildFrame('form').serialize(),
+                            type: 'POST',
+                            url: "{% url 'group_add' %}",
+                            data: layer.getChildFrame('form').serialize(),
                             success: function (res) {
                                 if (res.rowcount == 1) {
                                     layer.close(index);
                                     parent.layer.msg("新增成功！");
-                                    var txt ='';
-                                    txt =txt + "<li><a href=\"javascript:;\"><cite>"+layer.getChildFrame('form').find("input[name=group_name]").val()+"</cite></a></li>";
-                                    $.each($("#group-tree>li"),function(){
-                                        if ($(this).children("a").text() == layer.getChildFrame('form').find(".layui-this").text()){
+                                    var txt = '';
+                                    txt = txt + "<li><a href=\"javascript:;\"><cite>" + layer.getChildFrame('form').find("input[name=group_name]").val() + "</cite></a></li>";
+                                    $.each($("#group-tree>li"), function () {
+                                        if ($(this).children("a").text() == layer.getChildFrame('form').find(".layui-this").text()) {
                                             $(this).children("ul.layui-show").append(txt);
                                         }
                                     });
                                 }
                                 else if (res == 'group_name') {
-                                    layer.msg("请输入名称",{offset: ['200px', '400px'],time: 1000});
+                                    layer.msg("请输入名称", {offset: ['200px', '400px'], time: 1000});
+                                }
+                                else if (res == 'project_id') {
+                                    layer.msg("请选择所属项目", {offset: ['200px', '400px'], time: 1000});
                                 }
                             },
                             error: function (jqXHR) {
@@ -124,27 +130,27 @@
             });
 
             //修改分组
-            $('#group-tree').on('click','.group-update',function(){
+            $('#group-tree').on('click', '.group-update', function () {
                 var this_a = $(this).parent().find("a:first");
                 var group_name = this_a.text();
                 layer.open({
                     type: 2
-                    ,offset: ['100px', '200px']
+                    , offset: ['100px', '200px']
                     , title: "修改分组"
                     , area: ['450px', '350px']
                     , content: "{% url 'group_form' %}"
                     , btn: ['保存', '取消']
                     , btnAlign: 'r' //按钮右对齐
                     , shade: 0.5 //遮罩透明度
-                    ,success:function(layero, index){
+                    , success: function (layero, index) {
                         $.ajax({
-                            type:'GET',
-                            url:"{% url 'group_query' %}",
-                            data:{'group_name':group_name},
-                            success:function(res){
+                            type: 'GET',
+                            url: "{% url 'group_query' %}",
+                            data: {'group_name': group_name},
+                            success: function (res) {
                                 var othis = layer.getChildFrame('form', index);
-                                $(document).ready(function(){
-                                    $.each(res.data,function() {
+                                $(document).ready(function () {
+                                    $.each(res.data, function () {
                                         othis.find("input[name='id']").val(this.id);
                                         othis.find("input[name='group_name']").val(this.group_name);
                                         othis.find("select[name='project_id']").next().find("dd[lay-value='" + this.project_id + "']").click();
@@ -156,12 +162,12 @@
                             }
                         });
                     }
-                    ,yes: function (index,layero) {
+                    , yes: function (index, layero) {
                         var new_name = layer.getChildFrame("input[name='group_name']").val();
                         $.ajax({
-                            type:'POST',
-                            url:"{% url 'group_update' %}",
-                            data:layer.getChildFrame('form').serialize(),
+                            type: 'POST',
+                            url: "{% url 'group_update' %}",
+                            data: layer.getChildFrame('form').serialize(),
                             success: function (res) {
                                 if (res.rowcount == 1) {
                                     this_a.children("cite").text(new_name);
@@ -169,7 +175,7 @@
                                     parent.layer.msg("修改成功！");
                                 }
                                 else if (res == 'group_name') {
-                                    layer.msg("请输入名称",{offset: ['200px', '400px'],time: 1000});
+                                    layer.msg("请输入名称", {offset: ['200px', '400px'], time: 1000});
                                 }
                             },
                             error: function (jqXHR) {
@@ -181,15 +187,15 @@
             });
 
             //删除分组
-            $("#group-tree").on("click",'.group-del', function () {
+            $("#group-tree").on("click", '.group-del', function () {
                 var group_name = $(this).parent().find("a:first").text();
-                var this_li =  $(this).parent();
+                var this_li = $(this).parent();
                 $.ajax({
-                    type:"POST",
-                    url:"{% url 'group_del' %}",
-                    data:{"group_name":group_name},
-                    success:function(res){
-                        if (res.rowcount==1){
+                    type: "POST",
+                    url: "{% url 'group_del' %}",
+                    data: {"group_name": group_name},
+                    success: function (res) {
+                        if (res.rowcount == 1) {
                             this_li.remove();
                             layer.msg("删除成功！");
                         }
@@ -199,6 +205,161 @@
                     }
                 });
             });
+
+            //加载api列表
+            table.render({
+                id: 'pro_api'
+                , elem: '#api_table'
+                , height: 'full-51'
+                , size: 'sm'
+                , url: "{% url 'api_query' %}"
+                , page: true //开启分页
+                , limit: 30
+                , limits: [10, 30, 50, 100]
+                , cols: [[
+                    {field: 'id', title: 'ID', width: 50, sort: true, fixed: true},
+                    {field: 'api_name', title: '名称', width: 180},
+                    {field: 'protocol', title: '协议', width: 100},
+                    {field: 'method', title: '请求类型', width: 80, align: 'center'},
+                    {field: 'path', title: '接口地址', width: 300},
+                    {field: 'create_by', title: '创建人', width: 100},
+                    {field: 'createtime', title: '创建时间', width: 100},
+                    {field: 'update_by', title: '更新人', width: 100},
+                    {field: 'updatetime', title: '更新时间', width: 100},
+                    {fixed: 'right', width: 150, align: 'center', toolbar: '#operation_bar'}
+                ]]
+            });
+
+            //添加接口
+            $("#api-add").click(function () {
+                layer.open({
+                    type: 2
+                    , title: '+ 添加接口'
+                    , area: ['900px', '600px']
+                    , content: '{% url 'api_form' %}'
+                    , btnAlign: 'r' //按钮右对齐
+                    , shade: 0.3 //遮罩透明度
+                    , btn: ['继续添加','保存', '取消']
+                    , yes: function (index) {
+                        $.ajax({
+                            type: 'POST',
+                            url: "{% url 'api_add' %}",
+                            data: layer.getChildFrame('form').serialize(),
+                            success: function (res) {
+                                if (res.rowcount == 1) {
+                                    //layer.close(index);
+                                    parent.layer.msg("新增成功！");
+                                    $(".layui-laypage-btn").click();
+                                    layer.getChildFrame('form')[0].reset();
+                                }
+                                else if (res == 'api_name') {
+                                    layer.msg("请输入接口名称", {time: 1000});
+                                }
+                                else if (res == 'path') {
+                                    layer.msg("请输入接口地址", {time: 1000});
+                                }
+                                else if (res == 'method') {
+                                    layer.msg("请选择接口请求方法", {time: 1000});
+                                }
+                                else if (res == 'protocol') {
+                                    layer.msg("请选择接口协议", {time: 1000});
+                                }
+                            },
+                            error: function (jqXHR) {
+                                parent.layer.alert(jqXHR.responseText);
+                            }
+                        });
+                    }
+                    , btn2: function (index) {
+                        $.ajax({
+                            type: 'POST',
+                            url: "{% url 'api_add' %}",
+                            data: layer.getChildFrame('form').serialize(),
+                            success: function (res) {
+                                if (res.rowcount == 1) {
+                                    layer.close(index);
+                                    parent.layer.msg("新增成功！");
+                                    $(".layui-laypage-btn").click();
+                                }
+                                else if (res == 'api_name') {
+                                    layer.msg("请输入接口名称", {time: 1000});
+                                }
+                                else if (res == 'path') {
+                                    layer.msg("请输入接口地址", {time: 1000});
+                                }
+                                else if (res == 'method') {
+                                    layer.msg("请选择接口请求方法", {time: 1000});
+                                }
+                                else if (res == 'protocol') {
+                                    layer.msg("请选择接口协议", {time: 1000});
+                                }
+                            },
+                            error: function (jqXHR) {
+                                parent.layer.alert(jqXHR.responseText);
+                            }
+                        });
+                        return false
+                    }
+                });
+            });
+
+            //监听工具条
+            table.on('tool(api_list)', function (obj) { //注：tool是工具条事件名，api_list是table原始容器的属性 lay-filter="对应的值"
+                var layEvent = obj.event; //获得 lay-event 对应的值
+                var data = obj.data;
+
+                //删除
+                if (layEvent === 'delete') {
+                    layer.confirm('确认删除？', function (index) {
+                        $.ajax({
+                            type: "post",
+                            url: "{% url 'api_del' %}",
+                            data: {id: data.id},
+                            success: function (res) {
+                                if (res.rowcount == 1) {
+                                    layer.msg("删除成功!!!");
+                                    $(".layui-laypage-btn").click();
+                                } else if (res.rowcount == 0) {
+                                    layer.msg("删除失败!!!");
+                                }
+                            },
+                            error: function (jqXHR) {
+                                parent.layer.alert(jqXHR.responseText);
+                            }
+                        });
+                    });
+                }
+                //编辑
+                else if (layEvent === 'edit') {
+                    layer.open({
+                        type: 2
+                        , title: '编辑'
+                        , area: ['900px', '600px']
+                        , content: '{% url 'api_form' %}'
+                        , data: {id: data.id}
+                        , btn: ['保存', '取消']
+                        , btnAlign: 'r' //按钮右对齐
+                        , shade: 0.3 //遮罩透明度
+                        , success: function (layero, index) {
+                            layer.getChildFrame('form').find('input[name="id"]').val(data.id);
+                            layer.getChildFrame('form').find('input[name="api_name"]').val(data.api_name);
+                            layer.getChildFrame('form').find('select[name="project_id"]').next().find("dd[lay-value=" + data.project_id + "]").click();
+                            layer.getChildFrame('form').find('select[name="group_id"]').next().find("dd[lay-value=" + data.group_id + "]").click();
+                            layer.getChildFrame('form').find('select[name="enable"]').next().find("dd[lay-value=" + data.enable + "]").click();
+                            layer.getChildFrame('form').find('select[name="method"]').next().find("dd[lay-value=" + data.method + "]").click();
+                            layer.getChildFrame('form').find('select[name="protocol"]').next().find("dd[lay-value=" + data.protocol + "]").click();
+                            layer.getChildFrame('form').find('input[name="path"]').val(data.path);
+                            layer.getChildFrame('form').find('textarea[name=header_param]').val(data.header_param);
+                            layer.getChildFrame('form').find('textarea[name=uri_param]').val(data.uri_param);
+                            layer.getChildFrame('form').find('textarea[name=query_param]').val(data.query_param);
+                            layer.getChildFrame('form').find('textarea[name=body_param]').val(data.body_param);
+
+                        }
+                    });
+                    form.render();
+                }
+            });
+
 
         });
     </script>

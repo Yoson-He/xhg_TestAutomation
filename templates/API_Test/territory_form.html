@@ -10,66 +10,52 @@
         <div class="layui-form-item">
             <label class="layui-form-label">环境名称</label>
             <div class="layui-input-block">
-                <input type="text" name="territory_name" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                <input type="text" name="territory_name" required lay-verify="required" placeholder=""
+                       autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">所属项目</label>
             <div class="layui-input-block">
-                <select id="project_select" name="project_id"  lay-verify="required"></select>
+                <select id="project_select" name="project_id">
+                </select>
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">API域名</label>
             <div class="layui-input-block">
-                <input type="text" name="host"  placeholder="" required lay-verify="required" autocomplete="off" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">登录地址</label>
-            <div class="layui-input-block">
-                <input type="text" name="login_url"  placeholder="" autocomplete="off" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">用户</label>
-            <div class="layui-input-block">
-                <input type="text" name="user"  placeholder="" autocomplete="off" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">密码</label>
-            <div class="layui-input-block">
-                <input type="text" name="password"  placeholder="" autocomplete="off" class="layui-input">
+                <input type="text" name="host" placeholder="" required lay-verify="required" autocomplete="off"
+                       class="layui-input">
             </div>
         </div>
         <div class="layui-form-item layui-form-text">
             <label class="layui-form-label">描述</label>
             <div class="layui-input-block">
-                <textarea name="description"  placeholder="" class="layui-textarea"></textarea>
+                <textarea name="description" placeholder="" class="layui-textarea"></textarea>
             </div>
         </div>
         <div class="layui-form-item form-btn">
             <button class="layui-btn" lay-submit lay-filter="territory_save">保存</button>
-            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="territory_save" id="territory_continue">继续添加</button>
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="territory_save" id="territory_continue">
+                继续添加
+            </button>
             <button type="reset" class="layui-btn layui-btn-primary" id="territory_cancel">取消</button>
         </div>
     </form>
     <script>
-        layui.use(['form','layer'],function(){
-            var form=layui.form, layer = layui.layer;
+        layui.use(['form', 'layer'], function () {
+            var form = layui.form, layer = layui.layer;
 
             //加载项目下拉选项
-            $(document).ready(function(){
+            $(document).ready(function () {
                 $.ajax({
-                    type:"GET",
-                    url:"{% url 'project_query' %}",
-                    success:function(res){
-                        var txt='';
-                        $.each(res.data,function(){
-                            txt = txt+"<option value=\""+this.id+"\">"+this.project_name+"</option>";
+                    type: "GET",
+                    url: "{% url 'project_query' %}",
+                    success: function (res) {
+                        var txt = '<option value=""></option>';
+                        $.each(res.data, function () {
+                            txt = txt + "<option value=\"" + this.id + "\">" + this.project_name + "</option>";
                         });
-                        // $("#territory_form").contents().find("#project_select").prepend(txt);
                         $('#project_select').prepend(txt);
                         form.render();
                     },
@@ -80,25 +66,25 @@
             });
 
             //增、改
-            form.on('submit(territory_save)', function(data){
+            form.on('submit(territory_save)', function (data) {
                 //新增
-                if(data.field['id'] == ''){
+                if (data.field['id'] == '') {
                     $.ajax({
-                        type:"POST",
-                        url:"{% url 'territory_add' %}",
-                        data:$('form').serialize(),
-                        success:function(res){
-                            if(res.rowcount == 1){
+                        type: "POST",
+                        url: "{% url 'territory_add' %}",
+                        data: $('form').serialize(),
+                        success: function (res) {
+                            if (res.rowcount == 1) {
                                 //将新增的环境添加到父页面左侧环境列表
-                                var txt ='', name_new = $('input[name=territory_name]').val();
-                                txt = txt + "<li class=\"territory-item\"><a id=\""+res.insert_id+"\" class=\"territory_name\" href=\"#\">"+ name_new +"</a><a hidden class=\"territory-del\" href=\"#\"><i class=\"layui-icon\">&#xe640;</i></a></li>";
+                                var txt = '', name_new = $('input[name=territory_name]').val();
+                                txt = txt + "<li class=\"territory-item\"><a id=\"" + res.insert_id + "\" class=\"territory_name\" href=\"#\">" + name_new + "</a><a hidden class=\"territory-del\" href=\"#\"><i class=\"layui-icon\">&#xe640;</i></a></li>";
                                 $(".li-title", parent.document).after(txt)
                             }
-                            if ($(data.elem).text() == '保存'){
-                                    $('form').hide();
-                                }
-                                layer.msg("新增成功！");
-                                $('form')[0].reset();
+                            if ($(data.elem).text() == '保存') {
+                                $('form').hide();
+                            }
+                            layer.msg("新增成功！");
+                            $('form')[0].reset();
                         },
                         error: function (jqXHR) {
                             layer.alert(jqXHR.responseText);
@@ -106,20 +92,23 @@
                     });
                 }
                 //修改
-                else{
+                else {
                     $.ajax({
-                        type:"POST",
-                        url:"{% url 'territory_update' %}",
-                        data:$('form').serialize(),
-                        success:function(res){
-                            if(res.rowcount == 1){
+                        type: "POST",
+                        url: "{% url 'territory_update' %}",
+                        data: $('form').serialize(),
+                        success: function (res) {
+                            if (res.rowcount == 1) {
                                 var name_new = $('input[name=territory_name]').val(),
-                                name_old = $("#"+data.field['id'], parent.document).text();
-                                if (name_new != name_old){
+                                    name_old = $("#" + data.field['id'], parent.document).text();
+                                if (name_new != name_old) {
                                     //更新父页面左侧环境列表的列表名称
-                                    $("#"+data.field['id'], parent.document).text(name_new);
+                                    $("#" + data.field['id'], parent.document).text(name_new);
                                 }
                                 layer.msg("修改成功！");
+                            }
+                            else if (res.rowcount == 0) {
+                                layer.msg("未做任何修改!");
                             }
                         },
                         error: function (jqXHR) {

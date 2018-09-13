@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <script>
+        layui.use(['form'], function () {
+            var form = layui.form;
+
+            //加载分组
+            $.ajax({
+                type:"get",
+                url:"{% url 'project_query' %}",
+                success:function(res){
+                    var txt = "";
+                    $.each(res.data,function(){
+                        txt= txt + "<option value=\""+this.id+"\">"+this.project_name+"</option>"
+                    });
+                    $("select[name='project_id']").append(txt);
+                    form.render('select');
+                }
+            });
+            form.on('select(project)', function(data){
+                $("select[name='group_id']").empty();
+                $.ajax({
+                    type:"get",
+                    url:"{% url 'group_query' %}",
+                    data:{'project_id':data.value},
+                    success:function(res){
+                        var txt = "";
+                        $.each(res.data,function(){
+                            txt= txt + "<option value=\""+this.id+"\">"+this.group_name+"</option>"
+                        });
+                        $("select[name='group_id']").append(txt);
+                        form.render('select');
+                    }
+                });
+            });
+        });
+    </script>
+    <form class="layui-form layui-form-pane" action="">
+        <input type="text" name="id" placeholder="" autocomplete="off" class="layui-input layui-hide">
+        <div class="form-div">
+            <div class="api-basic">
+                <div class="layui-form-item api-form-item">
+                    <label class="layui-form-label api-form-label">分组</label>
+                    <div class="api-form-inline layui-input-inline" style="width: 150px">
+                        <select name="project_id" lay-filter="project"><option value=""></option></select>
+                    </div>
+                    <div class="layui-input-inline api-form-inline">
+                        <select name="group_id"></select>
+                    </div>
+                </div>
+                <div class="layui-form-item api-form-item">
+                    <label class="layui-form-label api-form-label">状态</label>
+                    <div class="layui-input-inline api-form-inline" style="width: 100px">
+                        <select name="enable">
+                            <option value="0">启用</option>
+                            <option value="1">禁用</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item api-form-item">
+                    <label class="layui-form-label api-form-label">URI</label>
+                    <div class="layui-input-inline api-form-inline" style="width: 100px">
+                        <select name="protocol">
+                            <option value="HTTP">HTTP</option>
+                            <option value="HTTPS">HTTPS</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline api-form-inline" style="width: 100px">
+                        <select name="method">
+                            <option value="POST">POST</option>
+                            <option value="GET">GET</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline api-form-inline" style="width: calc(100% - 307px)">
+                        <input type="text" name="path" required lay-verify="required" placeholder="" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item api-form-item">
+                    <label class="layui-form-label api-form-label">名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="api_name" required lay-verify="required" placeholder=""
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="api-param">
+                <div class="api-request-param">
+                    <div class="layui-tab layui-tab-card">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">请求头</li>
+                            <li>URI参数</li>
+                            <li>Qurey参数</li>
+                            <li>Body参数</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <textarea name="header_param"  placeholder="" class="layui-textarea" style="height: 250px;"></textarea>
+                            </div>
+                            <div class="layui-tab-item">
+                                <textarea name="uri_param"  placeholder="" class="layui-textarea" style="height: 250px;"></textarea>
+                            </div>
+                            <div class="layui-tab-item">
+                                <textarea name="query_param"  placeholder="" class="layui-textarea" style="height: 250px;"></textarea>
+                            </div>
+                            <div class="layui-tab-item">
+                                <textarea name="body_param"  placeholder="" class="layui-textarea" style="height: 250px;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="api-response-param">
+                    <div class="layui-tab layui-tab-card">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">返回参数</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <textarea name="response_param"  placeholder="" class="layui-textarea" style="height: 250px;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="api-response-sample">
+                        <div class="layui-tab layui-tab-card">
+                            <ul class="layui-tab-title">
+                                <li class="layui-this">返回示例</li>
+                            </ul>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item layui-show">
+                                    <textarea name="response_example"  placeholder="" class="layui-textarea" style="height: 250px;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

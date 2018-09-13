@@ -25,7 +25,7 @@ SECRET_KEY = 'mh92c4)$i(bveru8v^&o-idl65nn3ne$8)ngz&&ol-$v3tvzw^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.10.12.61']
+ALLOWED_HOSTS = ['10.10.13.175']
 
 
 # Application definition
@@ -81,7 +81,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'xhg_testautomation',
-        'HOST': '10.10.12.61',
+        'HOST': '10.10.13.175',
         'USER': 'root',
         'PASSWORD': '123456',
         'PORT': '3306',

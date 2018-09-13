@@ -11,22 +11,19 @@ from common.db_handler.mysql_engine import MySQLEngine
 
 
 def project_manage(request):
-    if request.session.session_key:
-        return render(request, 'API_Test/project_manage.html')
-    else:
-        return HttpResponseRedirect('/')
+    #if request.session.session_key:
+    #   return render(request, 'API_Test/project_manage.html')
+    #else:
+    #    return HttpResponseRedirect('/')
+    return render(request, 'API_Test/project_manage.html')
 
 
 def project_form(request):
-    if request.session.session_key:
-        return render(request, 'API_Test/project_form.html')
-    else:
-        return HttpResponseRedirect('/')
+    return render(request, 'API_Test/project_form.html')
 
 
 def project_query(request):
-    if request.session.session_key:
-        if request.method == 'GET':
+    if request.method == 'GET':
             project_name = request.GET.get('project_name')
             sql = "SELECT * FROM project"
             if project_name is not None and project_name != '':
@@ -34,32 +31,24 @@ def project_query(request):
             data = MySQLEngine().my_execute("query", sql)
             res = {"data": data}
             return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
 
 
-@csrf_exempt
 def project_update(request):
-    if request.session.session_key:
-        if request.method == 'POST':
+    if request.method == 'POST':
             sql = "UPDATE project SET "
             for key in request.POST:
                 value = str_clean(request.POST.get(key))
-                if value != '':
-                    sql += "%s='%s'," % (key, value)
-                elif key in ['project_name']:
+                if key in ['project_name'] and value == '':
                     return HttpResponse(key)
+                else:
+                    sql += "%s='%s'," % (key, value)
             sql = sql[:-1] + " WHERE id=%s" % request.POST.get('id')  # 先去掉最后的逗号，再拼接where
             res = MySQLEngine().my_execute('update', sql)
             return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
 
 
-@csrf_exempt
 def project_add(request):
-    if request.session.session_key:
-        if request.method == 'POST':
+    if request.method == 'POST':
             sql = "INSERT INTO project("
             sql_values = ') VALUES( '
             for key in request.POST:
@@ -72,14 +61,10 @@ def project_add(request):
             sql = sql[:-1] + sql_values[:-1] +")"  # 先去掉最后的逗号，再拼接
             res = MySQLEngine().my_execute('insert', sql)
             return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
 
 
-@csrf_exempt
 def project_del(request):
-    if request.session.session_key:
-        if request.method == 'POST':
+    if request.method == 'POST':
             sql = "DELETE FROM project WHERE "
             for key in request.POST:
                 value = str_clean(request.POST.get(key))
@@ -87,9 +72,3 @@ def project_del(request):
                     sql += "%s = '%s'" % (key, value)
             res = MySQLEngine().my_execute('delete', sql)
             return JsonResponse(res)
-    else:
-        return HttpResponseRedirect('/')
-
-
-
-

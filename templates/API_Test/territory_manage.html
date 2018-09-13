@@ -5,7 +5,7 @@
             <li><button class="layui-btn layui-btn-small layui-btn-normal">+ 创建环境</button></li>
         </ul>
         <ul class="box-lift">
-            <li class="li-title"><span>环境变量</span></li>
+            <li class="li-title"><span>环境列表</span></li>
         </ul>
         <div class="box-right">
             <iframe id="territory_iframe" frameborder="0" scrolling="no" marginwidth="0" marginheight="0"  width="100%" height="100%" src="{% url 'territory_form' %}"></iframe>
@@ -75,9 +75,6 @@
                             othis.find("input[name='id']").val(this.id);
                             othis.find("input[name='territory_name']").val(this.territory_name);
                             othis.find("input[name='host']").val(this.host);
-                            othis.find("input[name='password']").val(this.password);
-                            othis.find("input[name='user']").val(this.user);
-                            othis.find("input[name='login_url']").val(this.login_url);
                             othis.find("textarea[name='description']").val(this.description);
                             othis.find("select[name='project_id']").next().find("dd[lay-value=" + this.project_id + "]").click();
                         });
