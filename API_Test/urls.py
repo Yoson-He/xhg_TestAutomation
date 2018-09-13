@@ -27,7 +27,9 @@ urlpatterns = [
     # ---接口---- #
     path('api_manage/', views_api.api_manage, name='api_manage'),
     path('api_doc/', views_api.api_doc, name='api_doc'),
-    path('api_form/', views_api.api_form, name='api_form'),
+    path('api_debug/', views_api.api_doc, name='api_doc'),
+    path('nodes/', views_api.get_nodes, name='nodes'),
+    path('api_form/', views_api.api_debug, name='api_debug'),
     path('api_add/', views_api.api_add, name='api_add'),
     #path('api_update/', views_api.api_update, name='api_update'),
     path('api_query/', views_api.api_query, name='api_query'),

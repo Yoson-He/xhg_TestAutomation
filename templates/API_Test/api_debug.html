@@ -1,10 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block mainbody %}
+    <div class="layui-tab layui-tab-brief" style="margin:0px;height:772px">
+        <ul class="layui-tab-title">
+            <li class="layui-this">B端</li>
+            <li>C端</li>
+            <li>Boss</li>
+            <li>终端</li>
+        </ul>
+        <div class="layui-tab-content" style="padding: 0px;height: 100%;">
+            <div class="layui-tab-item layui-show" style="width: 100%;height: 100%;">
+                <div>
+                    <ul id="merchant"></ul>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div>
+                    <ul id="customer"></ul>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div>
+                    <ul id="boss"></ul>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div>
+                    <ul id="gateway"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
-</body>
-</html>
+
+    <script>
+        layui.use(['tree', 'layer', 'form', 'element', 'table'], function () {
+            var layer = layui.layer, form = layui.form, element = layui.element, table = layui.table;
+            var nodes = new Array();//存储左侧导航树节点
+            var node_name, node_id;
+
+            //加载B端树节点
+            $.ajax({
+                type: "GET",
+                url: "{% url 'nodes' %}",
+                data: {"app":"merchant"},
+                success: function (res) {
+                    nodes = res.data;
+                    layui.tree({
+                        elem: '#merchant' //传入元素选择器
+                        , nodes: nodes
+
+                    });
+
+                    //删除layui-tree 自带的样式
+                    $("i.layui-tree-branch").remove();
+                    $("i.layui-tree-leaf").remove();
+                },
+                error: function (jqXHR) {
+                    layer.alert(jqXHR.responseText);
+                }
+            });
+        });
+    </script>
+
+{% endblock %}

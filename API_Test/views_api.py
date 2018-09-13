@@ -3,8 +3,10 @@
 # @Author  : Yoson
 # @File    : views_api.py
 # @Software: PyCharm
+import json
 import re
 
+import requests
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -14,9 +16,31 @@ from django.views.decorators.csrf import csrf_exempt
 from common.db_handler.mysql_engine import MySQLEngine
 
 
+def get_nodes(request):
+    if request.session.session_key:
+        nodes=[]
+        if request.GET["app"] == "merchant":
+            res = requests.post("http://10.10.10.201:801/showdoc/server/index.php?s=/api/item/info", data = {'item_id':17,'default_page_id':0})
+            for i in json.loads(res.text)["data"]["menu"]["catalogs"][0]["catalogs"]:
+                children = []
+                for j in i["pages"]:
+                    children.append({"name": j["page_title"]})
+                nodes.append({"name": i["cat_name"], "children": children})
+        return JsonResponse({"data": nodes})
+    else:
+        return HttpResponseRedirect('/')
+
+
 def api_doc(request):
     if request.session.session_key:
         return render(request, 'API_Test/api_doc.html')
+    else:
+        return HttpResponseRedirect('/')
+
+
+def api_debug(request):
+    if request.session.session_key:
+        return render(request, 'API_Test/api_debug.html')
     else:
         return HttpResponseRedirect('/')
 
