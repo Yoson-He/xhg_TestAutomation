@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block mainbody %}
+
     <div class="layui-tab layui-tab-brief" style="margin:0px;height:772px">
         <ul class="layui-tab-title">
             <li class="layui-this">B端</li>
@@ -7,48 +8,166 @@
             <li>Boss</li>
             <li>终端</li>
         </ul>
-        <div class="layui-tab-content" style="padding: 0px;height: 100%;">
-            <div class="layui-tab-item layui-show" style="width: 100%;height: 100%;">
-                <div>
+        <div class="layui-tab-content " style="padding: 0px;height: 100%;">
+            <div class="layui-tab-item layui-show " style="width: 100%;height: 100%;">
+                <div class="debug-tree">
                     <ul id="merchant"></ul>
+                </div>
+                <div id="merchant-api" class="layui-hide"
+                     style="width: 1000px;height:772px;display: inline-block;border-right: 1px solid #e6e6e6; overflow-y:auto; padding-left: 50px;">
+                    <form class="layui-form layui-form-pane" action="">
+                        <div class="form-div">
+                            <div class="api-basic">
+                                <div class="layui-form-item api-form-item">
+                                    <label class="layui-form-label api-form-label">HOST</label>
+                                    <div class="layui-input-inline api-form-inline" style="width: 300px">
+                                        <select name="host">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item api-form-item">
+                                    <label class="layui-form-label api-form-label">URI</label>
+                                    <div class="layui-input-inline api-form-inline" style="width: 100px">
+                                        <select name="method">
+                                            <option value=""></option>
+                                            <option value="POST">POST</option>
+                                            <option value="GET">GET</option>
+                                        </select>
+                                    </div>
+                                    <div class="layui-input-inline api-form-inline" style="width: calc(100% - 307px)">
+                                        <input type="text" name="path" required lay-verify="required" placeholder=""
+                                               autocomplete="off"
+                                               class="layui-input">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item api-form-item">
+                                    <label class="layui-form-label api-form-label">名称</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="api_name" required lay-verify="required" placeholder=""
+                                               autocomplete="off" class="layui-input">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="api-param">
+                                <div class="api-request-param">
+                                    <div class="layui-tab layui-tab-card">
+                                        <ul class="layui-tab-title">
+                                            <li>请求头</li>
+                                            <li>URI参数</li>
+                                            <li>Qurey参数</li>
+                                            <li class="layui-this">Body参数</li>
+                                        </ul>
+                                        <div class="layui-tab-content">
+                                            <div class="layui-tab-item">
+                                                <textarea name="header_param" placeholder="" class="layui-textarea"
+                                                          style="height: 200px;"></textarea>
+                                            </div>
+                                            <div class="layui-tab-item">
+                                                <textarea name="uri_param" placeholder="" class="layui-textarea"
+                                                          style="height: 200px;"></textarea>
+                                            </div>
+                                            <div class="layui-tab-item">
+                                                <textarea name="query_param" placeholder="" class="layui-textarea"
+                                                          style="height: 200px;"></textarea>
+                                            </div>
+                                            <div class="layui-tab-item layui-show">
+                                                <textarea name="body_param" placeholder="" class="layui-textarea"
+                                                          style="height: 350px;"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item form-btn">
+                                    <a class="layui-btn layui-btn-small layui-btn-normal" id="try">Try it out!</a>
+                                </div>
+                                <div class="api-response-param">
+                                    <div class="layui-tab layui-tab-card">
+                                        <ul class="layui-tab-title">
+                                            <li class="layui-this">返回参数</li>
+                                        </ul>
+                                        <div class="layui-tab-content">
+                                            <div class="layui-tab-item layui-show">
+                                                <textarea name="response_param" placeholder="" class="layui-textarea"
+                                                          style="height: 400px;"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
             <div class="layui-tab-item">
-                <div>
+                <div class="debug-tree">
                     <ul id="customer"></ul>
                 </div>
             </div>
             <div class="layui-tab-item">
-                <div>
+                <div class="debug-tree">
                     <ul id="boss"></ul>
                 </div>
             </div>
             <div class="layui-tab-item">
-                <div>
+                <div class="debug-tree">
                     <ul id="gateway"></ul>
                 </div>
             </div>
         </div>
     </div>
 
-
     <script>
         layui.use(['tree', 'layer', 'form', 'element', 'table'], function () {
             var layer = layui.layer, form = layui.form, element = layui.element, table = layui.table;
-            var nodes = new Array();//存储左侧导航树节点
-            var node_name, node_id;
+
+            //加载HOST
+            $.ajax({
+                type:"GET",
+                url:"{% url 'territory_query' %}",
+                success:function(res){
+                    var txt = '';
+                    $.each(res.data,function(){
+                        txt = txt + "<option value='"+this.host+"'>"+this.host+"</option>"
+                    });
+                    $("select[name='host']").append(txt);
+                    form.render("select");
+                },
+                error: function (jqXHR) {
+                    layer.alert(jqXHR.responseText);
+                }
+            });
 
             //加载B端树节点
             $.ajax({
                 type: "GET",
                 url: "{% url 'nodes' %}",
-                data: {"app":"merchant"},
+                data: {"app": "merchant"},
                 success: function (res) {
-                    nodes = res.data;
                     layui.tree({
                         elem: '#merchant' //传入元素选择器
-                        , nodes: nodes
+                        , nodes: res.data
 
+                        //点击加载当前接口信息
+                        , click: function (node) {
+                            if (!(node.hasOwnProperty("children"))) {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "{% url 'debug_form' %}",
+                                    data: {"page_id": node.page_id,"app": "merchant"},
+                                    success: function (re) {
+                                        if (re.method == "GET"){
+                                            $("#merchant-api").find("li:contains('Qurey参数')").click();
+                                        }
+                                        $("#merchant-api").removeClass("layui-hide");
+                                        $("#merchant-api").find("input[name='api_name']").val(re.api_name);
+                                        $("#merchant-api").find("input[name='path']").val(re.path);
+                                        $("#merchant-api").find("textarea[name='body_param']").val(re.body_param);
+                                        $("#merchant-api").find('select[name="method"]').next().find("dd[lay-value=" + re.method + "]").click();
+                                        $("#merchant-api").find("textarea[name='response_param']").val('');
+                                    }
+                                });
+                            }
+                        }
                     });
 
                     //删除layui-tree 自带的样式
@@ -58,6 +177,22 @@
                 error: function (jqXHR) {
                     layer.alert(jqXHR.responseText);
                 }
+            });
+
+            //接口请求
+            $("#try").click(function(){
+                $.ajax({
+                type:"POST",
+                url:"{% url 'api_request' %}",
+                data:$('#merchant-api').find("form").serialize(),
+                success:function(res){
+                   var  txt = JSON.stringify(JSON.parse(res.data),null,4);
+                    $("#merchant-api").find("textarea[name='response_param']").val(txt);
+                },
+                error: function (jqXHR) {
+                    layer.alert(jqXHR.responseText);
+                }
+            });
             });
         });
     </script>

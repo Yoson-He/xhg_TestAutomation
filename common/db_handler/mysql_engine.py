@@ -19,7 +19,7 @@ class MySQLEngine(object):
         MySQL 数据库ORM
         :param
         """
-        self.host = "10.10.13.175"
+        self.host = "10.10.13.120"
         self.user = "root"
         self.password = "123456"
         self.charset = "utf8"

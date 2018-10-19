@@ -43,9 +43,12 @@ def territory_update(request):
                 value = str_clean(request.POST.get(key))
                 if key in ['territory_name', 'host'] and value == '':
                     return HttpResponse(key)
+                elif value == '':
+                    sql += "%s=null," % key
                 else:
                     sql += "%s='%s'," % (key, value)
             sql = sql[:-1] + " WHERE id=%s" % request.POST.get('id')  # 先去掉最后的逗号，再拼接where
+            print(sql)
             res = MySQLEngine().my_execute('update', sql)
             return JsonResponse(res)
 
